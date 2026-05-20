@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>StokDapur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0b;
+  --surface: #161612;
+  --surface2: #1e1e19;
+  --border: #2a2a22;
+  --accent: #e8c547;
+  --accent2: #c4522a;
+  --text: #f0ece0;
+  --muted: #7a7a6a;
+  --green: #5a9e6f;
+  --red: #c4522a;
+  --yellow: #e8c547;
+  --blue: #5a8fe8;
+  --nav-h: 68px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* ── PAGES ── */
+.app { height: 100dvh; display: flex; flex-direction: column; }
+
+.pages { flex: 1; overflow: hidden; position: relative; }
+
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 1rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.page.active { opacity: 1; pointer-events: all; }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  background: rgba(13,13,11,0.97);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--accent); }
+
+.topbar-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  background: rgba(22,22,18,0.98);
+  border-top: 1px solid var(--border);
+  display: flex;
+  backdrop-filter: blur(16px);
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.15s;
+  padding-bottom: var(--safe-bottom);
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.nav-item.active { color: var(--accent); }
+
+.nav-icon { font-size: 1.4rem; line-height: 1; }
+.nav-label { font-size: 0.6rem; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.c-green::after { background: var(--green); }
+.stat-card.c-yellow::after { background: var(--yellow); }
+.stat-card.c-red::after { background: var(--red); }
+.stat-card.c-blue::after { background: var(--blue); }
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.c-green .stat-value { color: var(--green); }
+.c-yellow .stat-value { color: var(--yellow); }
+.c-red .stat-value { color: var(--red); }
+.c-blue .stat-value { color: var(--blue); }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ── ITEM CARDS ── */
+.item-list { padding: 0 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+.item-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item-card:active { background: var(--surface2); }
+
+.item-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.item-dot.ok { background: var(--green); box-shadow: 0 0 6px rgba(90,158,111,0.5); }
+.item-dot.low { background: var(--yellow); box-shadow: 0 0 6px rgba(232,197,71,0.5); }
+.item-dot.habis { background: var(--red); box-shadow: 0 0 6px rgba(196,82,42,0.5); }
+
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; }
+
+.item-right { text-align: right; flex-shrink: 0; }
+.item-qty {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.item-qty.ok { color: var(--green); }
+.item-qty.low { color: var(--yellow); }
+.item-qty.habis { color: var(--red); }
+
+.item-unit { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+/* ── ALERT CARDS ── */
+.alert-list { padding: 0 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.alert-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid;
+}
+
+.alert-card.low { background: rgba(232,197,71,0.06); border-color: rgba(232,197,71,0.25); }
+.alert-card.habis { background: rgba(196,82,42,0.06); border-color: rgba(196,82,42,0.25); }
+
+.alert-icon { font-size: 1.1rem; }
+.alert-text { flex: 1; }
+.alert-name { font-size: 0.85rem; font-weight: 600; }
+.alert-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.1rem; }
+
+/* ── SEARCH ── */
+.search-bar {
+  padding: 0.75rem 1rem;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  outline: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
+.search-bar input:focus { border-color: var(--accent); }
+
+.search-bar::before {
+  content: '⌕';
+  position: absolute;
+  left: 1.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+/* ── FILTER CHIPS ── */
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 0.75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--surface);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.chip.active { border-color: var(--accent); color: var(--accent); background: rgba(232,197,71,0.08); }
+
+/* ── STOK UBAH PAGE ── */
+.stok-form { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+
+.form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.form-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.form-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  padding: 0.8rem 1rem;
+  outline: none;
+  width: 100%;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+.form-input:focus { border-color: var(--accent); }
+
+.form-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88rem;
+  padding: 0.8rem 1rem;
+  outline: none;
+  width: 100%;
+  -webkit-appearance: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.toggle-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.toggle-btn {
+  padding: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.toggle-btn.active-in { border-color: var(--green); background: rgba(90,158,111,0.1); color: var(--green); }
+.toggle-btn.active-out { border-color: var(--red); background: rgba(196,82,42,0.1); color: var(--red); }
+
+.big-btn {
+  width: 100%;
+  padding: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #0d0d0b;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.big-btn:active { opacity: 0.8; }
+
+/* ── LOG ── */
+.log-list { padding: 0 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.log-item {
+  display: flex;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+}
+
+.log-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+}
+
+.log-dot.add { background: var(--green); }
+.log-dot.edit { background: var(--yellow); }
+.log-dot.del { background: var(--red); }
+
+.log-body { flex: 1; min-width: 0; }
+.log-text { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.log-text strong { color: var(--text); }
+.log-time { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: rgba(122,122,106,0.6); margin-top: 0.2rem; }
+
+/* ── BOTTOM SHEET MODAL ── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+.sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 201;
+  padding: 0 1.25rem calc(1.5rem + var(--safe-bottom));
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet-overlay.open .sheet { transform: translateY(0); }
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0.75rem auto 1.25rem;
+}
+
+.sheet-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.sheet-title span { color: var(--accent); }
+
+.sheet-grid { display: flex; flex-direction: column; gap: 0.9rem; margin-bottom: 1.25rem; }
+
+.sheet-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+/* ── STOK CURRENT DISPLAY ── */
+.stok-display {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stok-display .label { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.stok-display .value { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 1rem);
+  right: 1rem;
+  width: 52px; height: 52px;
+  background: var(--accent);
+  color: #0d0d0b;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  box-shadow: 0 4px 20px rgba(232,197,71,0.3);
+  transition: transform 0.15s;
+}
+
+.fab:active { transform: scale(0.93); }
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 2;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.18rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.badge-ok { background: rgba(90,158,111,0.15); color: var(--green); border: 1px solid rgba(90,158,111,0.3); }
+.badge-low { background: rgba(232,197,71,0.12); color: var(--yellow); border: 1px solid rgba(232,197,71,0.3); }
+.badge-habis { background: rgba(196,82,42,0.12); color: var(--red); border: 1px solid rgba(196,82,42,0.3); }
+
+/* ── UTIL ── */
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 60%, transparent 100%);
+  margin: 0 1rem 1rem;
+}
+
+/* DESKTOP: expand to 2-col layout */
+@media (min-width: 600px) {
+  .pages { max-width: 480px; margin: 0 auto; }
+  .bottom-nav { max-width: 480px; left: 50%; transform: translateX(-50%); }
+  .fab { right: calc(50% - 240px + 1rem); }
+  .sheet { max-width: 480px; left: 50%; transform: translateX(-50%) translateY(100%); }
+  .sheet-overlay.open .sheet { transform: translateX(-50%) translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="pages">
+
+    <!-- ── PAGE: BERANDA ── -->
+    <div class="page active" id="page-home">
+      <div class="topbar">
+        <div class="logo">Stok<span>Dapur</span></div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div class="topbar-date" id="headerDate"></div>
+          <button onclick="resetAllData()" style="background:rgba(196,82,42,0.15);border:1px solid rgba(196,82,42,0.4);color:var(--red);font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.35rem 0.65rem;cursor:pointer;">Hapus Semua</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card c-green">
+          <div class="stat-label">Total Item</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card c-yellow">
+          <div class="stat-label">Menipis</div>
+          <div class="stat-value" id="statLow">0</div>
+        </div>
+        <div class="stat-card c-red">
+          <div class="stat-label">Stok Habis</div>
+          <div class="stat-value" id="statHabis">0</div>
+        </div>
+        <div class="stat-card c-blue">
+          <div class="stat-label">Kategori</div>
+          <div class="stat-value" id="statKat">0</div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div id="alertSection">
+        <div class="sec-head">
+          <div class="sec-title">⚠ Perlu Perhatian</div>
+        </div>
+        <div class="alert-list" id="alertList"></div>
+      </div>
+
+      <!-- RECENT -->
+      <div class="sec-head">
+        <div class="sec-title">Semua Stok</div>
+        <button class="ghost-btn" onclick="gotoPage('stok')">Lihat →</button>
+      </div>
+      <div class="item-list" id="homeItemList"></div>
+    </div>
+
+    <!-- ── PAGE: STOK ── -->
+    <div class="page" id="page-stok">
+      <div class="topbar">
+        <div class="logo">Stok<span>Dapur</span></div>
+        <div class="topbar-date">Daftar Bahan</div>
+      </div>
+
+      <div class="search-bar">
+        <input type="search" id="searchInput" placeholder="Cari nama, kategori..." oninput="renderStokPage()">
+      </div>
+
+      <div class="chips" id="chipContainer">
+        <div class="chip active" data-filter="" onclick="setChip(this)">Semua</div>
+        <div class="chip" data-filter="ok" onclick="setChip(this)">✓ Aman</div>
+        <div class="chip" data-filter="low" onclick="setChip(this)">! Menipis</div>
+        <div class="chip" data-filter="habis" onclick="setChip(this)">✗ Habis</div>
+      </div>
+
+      <div class="item-list" id="stokItemList"></div>
+      <div id="stokEmpty" class="empty" style="display:none">Tidak ada item.<br>Tap + untuk tambah.</div>
+    </div>
+
+    <!-- ── PAGE: UBAH STOK ── -->
+    <div class="page" id="page-ubah">
+      <div class="topbar">
+        <div class="logo">Stok<span>Dapur</span></div>
+        <div class="topbar-date">Ubah Stok</div>
+      </div>
+
+      <div class="stok-form">
+        <div class="form-field">
+          <div class="form-label">Pilih Item</div>
+          <select class="form-select" id="quickItem" onchange="updateStokDisplay()">
+            <option value="">— pilih bahan —</option>
+          </select>
+        </div>
+
+        <div id="stokDisplayWrap" style="display:none">
+          <div class="stok-display">
+            <div>
+              <div class="label">Stok Saat Ini</div>
+              <div class="value" id="currentStokVal">0</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">Satuan</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1rem;color:var(--muted)" id="currentSatuanVal">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="form-label">Tipe Perubahan</div>
+          <div class="toggle-row">
+            <button class="toggle-btn active-in" id="btnMasuk" onclick="setSign(1)">▲ Masuk</button>
+            <button class="toggle-btn" id="btnKeluar" onclick="setSign(-1)">▼ Keluar</button>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="form-label">Jumlah</div>
+          <input type="number" class="form-input" id="quickQty" placeholder="0" min="0" inputmode="decimal">
+        </div>
+
+        <div class="form-field">
+          <div class="form-label">Keterangan (opsional)</div>
+          <input type="text" class="form-input" id="quickNote" placeholder="cth: pembelian, pemakaian...">
+        </div>
+
+        <button class="big-btn" onclick="submitQuick()">Simpan Perubahan</button>
+      </div>
+
+      <!-- LOG -->
+      <div class="sec-head" style="margin-top:0.5rem">
+        <div class="sec-title">Riwayat</div>
+        <button class="ghost-btn" onclick="clearLog()">Hapus</button>
+      </div>
+      <div class="log-list" id="logList"></div>
+    </div>
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAddSheet()" id="fab">+</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="gotoPage('home')">
+      <span class="nav-icon">⌂</span>
+      <span class="nav-label">Beranda</span>
+    </button>
+    <button class="nav-item" id="nav-stok" onclick="gotoPage('stok')">
+      <span class="nav-icon">☰</span>
+      <span class="nav-label">Stok</span>
+    </button>
+    <button class="nav-item" id="nav-ubah" onclick="gotoPage('ubah')">
+      <span class="nav-icon">⇅</span>
+      <span class="nav-label">Ubah Stok</span>
+    </button>
+  </nav>
+</div>
+
+<!-- SHEET: ADD / EDIT ITEM -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheetOverlay(event)">
+  <div class="sheet" id="mainSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">Tambah <span>Item Baru</span></div>
+    <div class="sheet-grid">
+      <div class="form-field">
+        <div class="form-label">Nama Bahan *</div>
+        <input type="text" class="form-input" id="fNama" placeholder="cth: Tepung Terigu">
+      </div>
+      <div class="sheet-row">
+        <div class="form-field">
+          <div class="form-label">Kategori *</div>
+          <input type="text" class="form-input" id="fKat" placeholder="cth: Bumbu">
+        </div>
+        <div class="form-field">
+          <div class="form-label">Satuan *</div>
+          <input type="text" class="form-input" id="fSatuan" placeholder="kg / liter / pcs">
+        </div>
+      </div>
+      <div class="sheet-row">
+        <div class="form-field">
+          <div class="form-label">Stok Awal</div>
+          <input type="number" class="form-input" id="fStok" placeholder="0" inputmode="decimal">
+        </div>
+        <div class="form-field">
+          <div class="form-label">Min. Stok</div>
+          <input type="number" class="form-input" id="fMin" placeholder="5" inputmode="decimal">
+        </div>
+      </div>
+      <div class="sheet-row">
+        <div class="form-field">
+          <div class="form-label">Supplier</div>
+          <input type="text" class="form-input" id="fSupplier" placeholder="Nama supplier">
+        </div>
+        <div class="form-field">
+          <div class="form-label">Exp. Date</div>
+          <input type="date" class="form-input" id="fExp">
+        </div>
+      </div>
+    </div>
+    <div id="sheetDeleteRow" style="display:none;margin-bottom:0.75rem">
+      <button class="big-btn" style="background:var(--red);color:white;font-size:0.9rem;padding:1rem" onclick="deleteCurrentItem()">🗑 Hapus Item Ini</button>
+    </div>
+    <div style="display:flex;gap:0.75rem">
+      <button class="ghost-btn" style="flex:1;padding:0.85rem" onclick="closeSheet()">Batal</button>
+      <button class="big-btn" style="flex:2" onclick="saveItem()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+let items = JSON.parse(localStorage.getItem('stokDapur') || '[]');
+let logs  = JSON.parse(localStorage.getItem('stokLogs')  || '[]');
+let editId = null;
+let quickSign = 1;
+let activeChipFilter = '';
+
+// No default items — start fresh
+
+// ── UTILS ──
+function save() {
+  localStorage.setItem('stokDapur', JSON.stringify(items));
+  localStorage.setItem('stokLogs',  JSON.stringify(logs));
+}
+
+function getStatus(i) {
+  return i.stok <= 0 ? 'habis' : i.stok < i.min ? 'low' : 'ok';
+}
+
+function now() {
+  return new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addLog(type, text) {
+  logs.unshift({type, text, time: now()});
+  if (logs.length > 60) logs.pop();
+  save(); renderLog();
+}
+
+function nextId() {
+  return items.length ? Math.max(...items.map(i=>i.id))+1 : 1;
+}
+
+// ── NAVIGATION ──
+function gotoPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  // scroll to top
+  document.getElementById('page-'+name).scrollTop = 0;
+  // FAB only on stok page
+  document.getElementById('fab').style.display = name === 'stok' ? 'flex' : 'none';
+  if (name === 'ubah') renderQuickSelect();
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderDate();
+  renderStats();
+  renderHomePage();
+  renderStokPage();
+  renderLog();
+}
+
+function renderDate() {
+  const d = new Date();
+  document.getElementById('headerDate').innerHTML =
+    d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+}
+
+function renderStats() {
+  document.getElementById('statTotal').textContent  = items.length;
+  document.getElementById('statLow').textContent    = items.filter(i=>getStatus(i)==='low').length;
+  document.getElementById('statHabis').textContent  = items.filter(i=>getStatus(i)==='habis').length;
+  document.getElementById('statKat').textContent    = [...new Set(items.map(i=>i.kategori))].length;
+}
+
+function itemCardHTML(item, showActions=false) {
+  const s = getStatus(item);
+  const qtyClass = s;
+  return `
+    <div class="item-card" onclick="openEditSheet(${item.id})">
+      <div class="item-dot ${s}"></div>
+      <div class="item-info">
+        <div class="item-name">${item.nama}</div>
+        <div class="item-meta">${item.kategori}${item.supplier ? ' · '+item.supplier : ''}</div>
+      </div>
+      <div class="item-right">
+        <div class="item-qty ${qtyClass}">${item.stok}</div>
+        <div class="item-unit">${item.satuan}</div>
+      </div>
+    </div>`;
+}
+
+function renderHomePage() {
+  // Alerts
+  const alerts = items.filter(i => getStatus(i) !== 'ok');
+  const alertSection = document.getElementById('alertSection');
+  const alertList    = document.getElementById('alertList');
+
+  if (alerts.length === 0) {
+    alertSection.style.display = 'none';
+  } else {
+    alertSection.style.display = '';
+    alertList.innerHTML = alerts.map(i => {
+      const s = getStatus(i);
+      const label = s === 'habis' ? 'Stok habis!' : `Sisa ${i.stok} ${i.satuan} (min: ${i.min})`;
+      const icon  = s === 'habis' ? '✗' : '!';
+      return `<div class="alert-card ${s}" onclick="openEditSheet(${i.id})">
+        <div class="alert-icon">${icon}</div>
+        <div class="alert-text">
+          <div class="alert-name">${i.nama}</div>
+          <div class="alert-sub">${label}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Recent items (show up to 5)
+  const homeList = document.getElementById('homeItemList');
+  const show = items.slice(0,5);
+  homeList.innerHTML = show.map(i => itemCardHTML(i)).join('');
+}
+
+function renderStokPage() {
+  const q  = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const st = activeChipFilter;
+
+  let filtered = items.filter(i => {
+    const mq = i.nama.toLowerCase().includes(q) || i.kategori.toLowerCase().includes(q);
+    const ms = !st || getStatus(i) === st;
+    return mq && ms;
+  });
+
+  const list  = document.getElementById('stokItemList');
+  const empty = document.getElementById('stokEmpty');
+
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = filtered.map(i => itemCardHTML(i)).join('');
+}
+
+function renderLog() {
+  const el = document.getElementById('logList');
+  if (!logs.length) {
+    el.innerHTML = '<div class="log-item"><div class="log-body"><div class="log-text">Belum ada aktivitas.</div></div></div>';
+    return;
+  }
+  el.innerHTML = logs.map(l => `
+    <div class="log-item">
+      <div class="log-dot ${l.type}"></div>
+      <div class="log-body">
+        <div class="log-text">${l.text}</div>
+        <div class="log-time">${l.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderQuickSelect() {
+  const el = document.getElementById('quickItem');
+  const cur = el.value;
+  el.innerHTML = '<option value="">— pilih bahan —</option>' +
+    items.map(i=>`<option value="${i.id}">${i.nama} (${i.stok} ${i.satuan})</option>`).join('');
+  if (cur) el.value = cur;
+  updateStokDisplay();
+}
+
+// ── CHIPS ──
+function setChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeChipFilter = el.dataset.filter;
+  renderStokPage();
+}
+
+// ── QUICK STOK ──
+function setSign(s) {
+  quickSign = s;
+  document.getElementById('btnMasuk').className  = 'toggle-btn' + (s===1  ? ' active-in'  : '');
+  document.getElementById('btnKeluar').className = 'toggle-btn' + (s===-1 ? ' active-out' : '');
+}
+
+function updateStokDisplay() {
+  const id  = parseInt(document.getElementById('quickItem').value);
+  const wrap = document.getElementById('stokDisplayWrap');
+  if (!id) { wrap.style.display='none'; return; }
+  const item = items.find(i=>i.id===id);
+  if (!item) { wrap.style.display='none'; return; }
+  wrap.style.display = '';
+  document.getElementById('currentStokVal').textContent   = item.stok;
+  document.getElementById('currentSatuanVal').textContent = item.satuan;
+}
+
+function submitQuick() {
+  const idStr = document.getElementById('quickItem').value;
+  if (!idStr) { alert('Pilih item dulu.'); return; }
+  const qty = parseFloat(document.getElementById('quickQty').value);
+  if (!qty || qty <= 0) { alert('Masukkan jumlah yang valid.'); return; }
+
+  const id  = parseInt(idStr);
+  const idx = items.findIndex(i=>i.id===id);
+  const item = items[idx];
+  const delta = qty * quickSign;
+  const newStok = Math.max(0, item.stok + delta);
+  items[idx].stok = newStok;
+
+  const note = document.getElementById('quickNote').value || (delta>0?'masuk':'keluar');
+  addLog(delta>0?'add':'edit',
+    `<strong>${item.nama}</strong>: ${delta>0?'+':''}${delta} ${item.satuan} (${note}) → ${newStok}`);
+
+  document.getElementById('quickQty').value  = '';
+  document.getElementById('quickNote').value = '';
+  save();
+  renderAll();
+  updateStokDisplay();
+}
+
+function clearLog() {
+  logs = []; save(); renderLog();
+}
+
+// ── SHEET MODAL ──
+function openAddSheet() {
+  editId = null;
+  document.getElementById('sheetTitle').innerHTML = 'Tambah <span>Item Baru</span>';
+  ['fNama','fKat','fSatuan','fStok','fMin','fSupplier','fExp'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('sheetDeleteRow').style.display='none';
+  document.getElementById('sheetOverlay').classList.add('open');
+}
+
+function openEditSheet(id) {
+  editId = id;
+  const item = items.find(i=>i.id===id);
+  document.getElementById('sheetTitle').innerHTML = 'Edit <span>'+item.nama+'</span>';
+  document.getElementById('fNama').value     = item.nama;
+  document.getElementById('fKat').value      = item.kategori;
+  document.getElementById('fSatuan').value   = item.satuan;
+  document.getElementById('fStok').value     = item.stok;
+  document.getElementById('fMin').value      = item.min;
+  document.getElementById('fSupplier').value = item.supplier||'';
+  document.getElementById('fExp').value      = item.exp||'';
+  document.getElementById('sheetDeleteRow').style.display='';
+  document.getElementById('sheetOverlay').classList.add('open');
+}
+
+function closeSheet() {
+  document.getElementById('sheetOverlay').classList.remove('open');
+}
+
+function closeSheetOverlay(e) {
+  if (e.target===document.getElementById('sheetOverlay')) closeSheet();
+}
+
+function saveItem() {
+  const nama    = document.getElementById('fNama').value.trim();
+  const kat     = document.getElementById('fKat').value.trim();
+  const satuan  = document.getElementById('fSatuan').value.trim();
+  if (!nama||!kat||!satuan) { alert('Nama, kategori, dan satuan wajib diisi.'); return; }
+
+  const stok     = parseFloat(document.getElementById('fStok').value)||0;
+  const min      = parseFloat(document.getElementById('fMin').value)||0;
+  const supplier = document.getElementById('fSupplier').value.trim();
+  const exp      = document.getElementById('fExp').value;
+
+  if (editId) {
+    const idx = items.findIndex(i=>i.id===editId);
+    items[idx] = {...items[idx], nama, kategori:kat, satuan, stok, min, supplier, exp};
+    addLog('edit',`Item <strong>${nama}</strong> diperbarui.`);
+  } else {
+    items.push({id:nextId(), nama, kategori:kat, satuan, stok, min, supplier, exp});
+    addLog('add',`Item baru <strong>${nama}</strong> ditambahkan (${stok} ${satuan}).`);
+  }
+
+  save(); closeSheet(); renderAll();
+}
+
+function deleteCurrentItem() {
+  const item = items.find(i=>i.id===editId);
+  if (!item) return;
+  items = items.filter(i=>i.id!==editId);
+  addLog('del',`Item <strong>${item.nama}</strong> dihapus.`);
+  save(); closeSheet(); renderAll();
+}
+
+function resetAllData() {
+  items = []; logs = []; save(); renderAll();
+}
+
+// ── INIT ──
+gotoPage('home'); // sets FAB visibility
+document.getElementById('fab').style.display = 'none'; // home = no fab
+renderAll();
+</script>
+</body>
+</html>
