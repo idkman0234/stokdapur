@@ -1,147 +1,4533 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Dashboard Simple</title>
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no,
+               viewport-fit=cover">
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f5f7;
-            color: #222;
-        }
+<title>Kasir - The Kitchen Bamboo Dimsum</title>
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 30px;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        header {
-            background: white;
-            padding: 25px;
-            border-radius: 18px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-        }
+<style>
 
-        header h1 {
-            margin: 0 0 8px;
-            font-size: 28px;
-        }
+:root {
+    --bg:#fff8f0;
+    --surface:#ffffff;
+    --surface2:#fff2e2;
+    --border:#ffe1bf;
 
-        header p {
-            margin: 0;
-            color: #777;
-        }
+    --accent:#ff6b35;
+    --accent2:#ffb703;
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
+    --text:#33261c;
+    --muted:#a9917d;
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 18px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-        }
+    --green:#06a77d;
+    --red:#ef476f;
+    --yellow:#ffb703;
+    --blue:#118ab2;
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 18px;
-        }
+    --radius:18px;
+    --radius-sm:12px;
 
-        .number {
-            font-size: 32px;
-            font-weight: bold;
-        }
+    --nav-h:72px;
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+}
 
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 12px;
-            background: #222;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
 
-        button:active {
-            transform: scale(0.98);
-        }
+html {
+    height:100%;
+    background:var(--bg);
+}
 
-        /* Tampilan tablet */
-        @media (max-width: 800px) {
-            .container {
-                padding: 20px;
-            }
+body {
+    min-height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Poppins',sans-serif;
+    overflow:hidden;
+    -webkit-text-size-adjust:100%;
+}
 
-            .cards {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
+button,
+input,
+select,
+textarea {
+    font-family:'Poppins',sans-serif;
+}
 
-        /* Tampilan HP */
-        @media (max-width: 500px) {
-            .cards {
-                grid-template-columns: 1fr;
-            }
+button {
+    -webkit-appearance:none;
+}
 
-            header h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+.app {
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+.pages {
+    position:relative;
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    overflow:hidden;
+}
+
+.page {
+    position:absolute;
+    inset:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+
+    -webkit-overflow-scrolling:touch;
+
+    padding-bottom:calc(
+        var(--nav-h) +
+        var(--safe-bottom) +
+        24px
+    );
+
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+
+    transition:opacity .18s ease;
+}
+
+.page.active {
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+}
+
+/* TOP BAR */
+
+.topbar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:
+        max(14px, env(safe-area-inset-top))
+        20px
+        14px;
+
+    background:rgba(255,248,240,.97);
+
+    border-bottom:1px solid var(--border);
+
+    position:sticky;
+    top:0;
+
+    z-index:50;
+
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+}
+
+.logo {
+    font-family:'Fredoka',sans-serif;
+    font-size:1.45rem;
+    font-weight:700;
+}
+
+.logo span {
+    color:var(--accent);
+}
+
+.topbar-sub {
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.4;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav {
+    position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    height:calc(var(--nav-h) + var(--safe-bottom));
+
+    padding-bottom:var(--safe-bottom);
+
+    background:#fff;
+
+    border-top:1px solid var(--border);
+
+    display:flex;
+
+    z-index:100;
+
+    box-shadow:
+        0 -6px 24px rgba(255,107,53,.12);
+}
+
+.nav-item {
+    flex:1;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:5px;
+
+    border:none;
+    background:transparent;
+
+    color:var(--muted);
+
+    cursor:pointer;
+
+    min-width:0;
+}
+
+.nav-item.active {
+    color:var(--accent);
+}
+
+.nav-icon {
+    font-size:1.4rem;
+    line-height:1;
+}
+
+.nav-label {
+    font-size:.65rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+}
+
+/* SEARCH */
+
+.search-bar {
+    padding:14px 20px 10px;
+    position:relative;
+}
+
+.search-bar input {
+    width:100%;
+
+    background:var(--surface2);
+
+    border:1px solid var(--border);
+
+    color:var(--text);
+
+    font-size:16px;
+
+    padding:13px 16px 13px 44px;
+
+    outline:none;
+
+    border-radius:999px;
+
+    -webkit-appearance:none;
+}
+
+.search-bar::before {
+    content:'⌕';
+
+    position:absolute;
+
+    left:34px;
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:var(--muted);
+
+    font-size:1.2rem;
+
+    pointer-events:none;
+}
+
+/* CHIPS */
+
+.chips {
+    display:flex;
+
+    gap:8px;
+
+    padding:
+        0
+        20px
+        12px;
+
+    overflow-x:auto;
+
+    -webkit-overflow-scrolling:touch;
+
+    scrollbar-width:none;
+}
+
+.chips::-webkit-scrollbar {
+    display:none;
+}
+
+.chip {
+    flex-shrink:0;
+
+    padding:9px 15px;
+
+    border:1px solid var(--border);
+
+    border-radius:999px;
+
+    background:#fff;
+
+    color:var(--muted);
+
+    font-size:.75rem;
+    font-weight:600;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+}
+
+.chip.active {
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+}
+
+/* MENU */
+
+.menu-grid {
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:12px;
+
+    padding:0 20px;
+}
+
+.menu-card {
+    position:relative;
+
+    min-height:125px;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    padding:17px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 3px 12px rgba(255,107,53,.06);
+
+    transition:
+        transform .12s,
+        background .12s;
+}
+
+.menu-card:active {
+    transform:scale(.97);
+    background:var(--surface2);
+}
+
+.menu-card.habis {
+    opacity:.45;
+    pointer-events:none;
+}
+
+.mname {
+    padding-right:65px;
+
+    font-size:.92rem;
+    font-weight:700;
+
+    line-height:1.3;
+
+    margin-bottom:8px;
+}
+
+.mkat {
+    font-size:.64rem;
+    color:var(--muted);
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+    margin-bottom:12px;
+}
+
+.mprice {
+    font-family:'JetBrains Mono',monospace;
+
+    font-size:.92rem;
+
+    color:var(--accent);
+
+    font-weight:700;
+}
+
+.mstok {
+    position:absolute;
+
+    top:12px;
+    right:12px;
+
+    padding:4px 7px;
+
+    border-radius:999px;
+
+    font-size:.58rem;
+    font-weight:700;
+}
+
+.mstok.ok {
+    color:var(--green);
+    background:#e4f8f0;
+}
+
+.mstok.low {
+    color:#c98a00;
+    background:#fff2cf;
+}
+
+.mstok.habis {
+    color:var(--red);
+    background:#fde3ea;
+}
+
+/* CART BAR */
+
+.cart-bar {
+    position:fixed;
+
+    left:0;
+    right:0;
+
+    bottom:
+        calc(
+            var(--nav-h) +
+            var(--safe-bottom)
+        );
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent2)
+        );
+
+    color:#fff;
+
+    padding:16px 20px;
+
+    border-radius:18px 18px 0 0;
+
+    display:none;
+
+    align-items:center;
+    justify-content:space-between;
+
+    z-index:95;
+
+    box-shadow:
+        0 -6px 20px rgba(255,107,53,.35);
+
+    cursor:pointer;
+}
+
+.cart-bar.show {
+    display:flex;
+}
+
+.cb-left {
+    font-size:.85rem;
+    font-weight:600;
+}
+
+.cb-total {
+    font-family:'Fredoka',sans-serif;
+
+    font-size:1.2rem;
+    font-weight:600;
+}
+
+/* SECTIONS */
+
+.sec-head {
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    padding:
+        22px
+        20px
+        10px;
+}
+
+.sec-title {
+    position:relative;
+
+    padding-left:12px;
+
+    font-family:'Fredoka',sans-serif;
+
+    font-size:1.05rem;
+    font-weight:600;
+}
+
+.sec-title::before {
+    content:'';
+
+    position:absolute;
+
+    left:0;
+    top:3px;
+    bottom:3px;
+
+    width:4px;
+
+    border-radius:4px;
+
+    background:var(--accent);
+}
+
+/* CART */
+
+.cart-list {
+    display:flex;
+    flex-direction:column;
+
+    gap:10px;
+
+    padding:18px 20px;
+}
+
+.cart-item {
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:15px;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius-sm);
+
+    box-shadow:
+        0 3px 12px rgba(255,107,53,.06);
+}
+
+.ci-info {
+    flex:1;
+    min-width:0;
+}
+
+.ci-name {
+    font-size:.9rem;
+    font-weight:700;
+}
+
+.ci-price {
+    margin-top:4px;
+
+    font-family:'JetBrains Mono',monospace;
+
+    font-size:.68rem;
+
+    color:var(--muted);
+}
+
+.qty-ctrl {
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+}
+
+.qty-btn {
+    width:34px;
+    height:34px;
+
+    border-radius:50%;
+
+    border:1px solid var(--border);
+
+    background:var(--surface2);
+
+    color:var(--accent);
+
+    font-size:1.1rem;
+    font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+}
+
+.qty-val {
+    min-width:20px;
+
+    text-align:center;
+
+    font-family:'JetBrains Mono',monospace;
+
+    font-weight:700;
+}
+
+/* FORMS */
+
+.form-field {
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+}
+
+.form-label {
+    font-size:.66rem;
+
+    font-weight:700;
+
+    color:var(--muted);
+
+    letter-spacing:.05em;
+
+    text-transform:uppercase;
+}
+
+.form-input,
+.form-select,
+textarea.form-input {
+    width:100%;
+
+    background:var(--surface2);
+
+    border:1px solid var(--border);
+
+    color:var(--text);
+
+    font-size:16px;
+
+    padding:14px;
+
+    outline:none;
+
+    border-radius:14px;
+
+    -webkit-appearance:none;
+}
+
+.form-input:focus,
+.form-select:focus {
+    border-color:var(--accent);
+
+    background:#fff;
+}
+
+/* PAYMENT */
+
+.pay-grid {
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:8px;
+}
+
+.pay-btn {
+    padding:15px 8px;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    background:#fff;
+
+    color:var(--muted);
+
+    font-size:.75rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.pay-btn.active {
+    background:var(--accent);
+
+    border-color:var(--accent);
+
+    color:#fff;
+
+    box-shadow:
+        0 4px 14px rgba(255,107,53,.3);
+}
+
+.big-btn {
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent2)
+        );
+
+    color:#fff;
+
+    font-size:.9rem;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 18px rgba(255,107,53,.3);
+}
+
+.big-btn:disabled {
+    opacity:.4;
+}
+
+.ghost-btn {
+    border:1px solid var(--border);
+
+    background:transparent;
+
+    color:var(--muted);
+
+    border-radius:999px;
+
+    padding:12px 15px;
+
+    font-size:.72rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+/* STATS */
+
+.stats-grid {
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:12px;
+
+    padding:18px 20px 0;
+}
+
+.stat-card {
+    position:relative;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    padding:18px;
+
+    overflow:hidden;
+}
+
+.stat-card::after {
+    content:'';
+
+    position:absolute;
+
+    left:15px;
+    right:15px;
+    bottom:0;
+
+    height:4px;
+
+    border-radius:4px 4px 0 0;
+}
+
+.c-green {
+    background:linear-gradient(180deg,#ecfbf5,#fff);
+}
+
+.c-green::after {
+    background:var(--green);
+}
+
+.c-blue {
+    background:linear-gradient(180deg,#e9f6fa,#fff);
+}
+
+.c-blue::after {
+    background:var(--blue);
+}
+
+.stat-label {
+    font-size:.62rem;
+
+    color:var(--muted);
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    margin-bottom:8px;
+}
+
+.stat-value {
+    font-family:'Fredoka',sans-serif;
+
+    font-size:1.55rem;
+
+    font-weight:600;
+}
+
+.c-green .stat-value {
+    color:var(--green);
+}
+
+.c-blue .stat-value {
+    color:var(--blue);
+}
+
+/* REPORT */
+
+#recapItemList {
+    margin:0 20px 20px;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius-sm);
+
+    overflow:hidden;
+}
+
+.report-row {
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 16px;
+
+    border-bottom:1px solid var(--border);
+}
+
+.report-row:last-child {
+    border-bottom:none;
+}
+
+.rr-label {
+    font-size:.82rem;
+}
+
+.rr-val {
+    font-family:'JetBrains Mono',monospace;
+
+    color:var(--accent);
+
+    font-weight:700;
+
+    font-size:.78rem;
+}
+
+/* HISTORY */
+
+.log-list {
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    padding:0 20px;
+}
+
+.log-item {
+    display:flex;
+
+    gap:12px;
+
+    padding:14px;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius-sm);
+
+    cursor:pointer;
+}
+
+.log-dot {
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    margin-top:5px;
+
+    flex-shrink:0;
+}
+
+.log-dot.cash {
+    background:var(--green);
+}
+
+.log-dot.nontunai {
+    background:var(--blue);
+}
+
+.log-body {
+    flex:1;
+
+    min-width:0;
+}
+
+.log-text {
+    font-size:.8rem;
+
+    line-height:1.5;
+}
+
+.log-time {
+    margin-top:4px;
+
+    font-family:'JetBrains Mono',monospace;
+
+    font-size:.62rem;
+
+    color:var(--muted);
+}
+
+.is-voided {
+    opacity:.5;
+}
+
+.void-badge {
+    display:inline-block;
+
+    margin-left:5px;
+
+    padding:2px 6px;
+
+    border-radius:999px;
+
+    background:#fde3ea;
+
+    color:var(--red);
+
+    font-size:.56rem;
+
+    font-weight:700;
+}
+
+/* EMPTY */
+
+.empty {
+    text-align:center;
+
+    padding:50px 20px;
+
+    color:var(--muted);
+
+    font-size:.8rem;
+
+    line-height:1.8;
+}
+
+.empty::before {
+    content:'🍥';
+
+    display:block;
+
+    font-size:2rem;
+
+    margin-bottom:5px;
+}
+
+/* SHEET */
+
+.sheet-overlay {
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(51,38,28,.45);
+
+    z-index:200;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    pointer-events:none;
+
+    transition:opacity .2s ease;
+}
+
+.sheet-overlay.open {
+    opacity:1;
+
+    visibility:visible;
+
+    pointer-events:auto;
+}
+
+.sheet {
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    max-height:90vh;
+    max-height:90dvh;
+
+    overflow-y:auto;
+
+    -webkit-overflow-scrolling:touch;
+
+    background:#fff;
+
+    border-radius:26px 26px 0 0;
+
+    padding:
+        0
+        20px
+        calc(20px + var(--safe-bottom));
+
+    transform:translateY(100%);
+
+    transition:
+        transform .3s cubic-bezier(.32,.72,0,1);
+}
+
+.sheet-overlay.open .sheet {
+    transform:translateY(0);
+}
+
+.sheet-handle {
+    width:40px;
+    height:5px;
+
+    background:var(--border);
+
+    border-radius:99px;
+
+    margin:13px auto 20px;
+}
+
+.receipt {
+    background:#fff;
+
+    color:#222;
+
+    font-family:'JetBrains Mono',monospace;
+
+    font-size:.78rem;
+
+    padding:20px;
+
+    line-height:1.6;
+
+    border-radius:12px;
+
+    border:1px dashed #ddd;
+}
+
+.receipt h3 {
+    font-family:'Fredoka',sans-serif;
+
+    text-align:center;
+
+    margin-bottom:5px;
+}
+
+.rline {
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+}
+
+.receipt hr {
+    border:none;
+
+    border-top:1px dashed #ccc;
+
+    margin:10px 0;
+}
+
+/* ERROR SCREEN */
+
+#fatalErrorBox {
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:99999;
+
+    background:#fff3f0;
+
+    color:#8a1f1f;
+
+    padding:24px;
+
+    font-family:monospace;
+
+    font-size:13px;
+
+    overflow:auto;
+
+    white-space:pre-wrap;
+
+    line-height:1.6;
+}
+
+/* TABLET */
+
+@media (min-width:700px) {
+
+    .topbar {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .search-bar {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .chips {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .menu-grid {
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+
+        padding-left:32px;
+        padding-right:32px;
+
+        gap:16px;
+    }
+
+    .menu-card {
+        min-height:145px;
+        padding:20px;
+    }
+
+    .stats-grid {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .cart-list {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .log-list {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    #recapItemList {
+        margin-left:32px;
+        margin-right:32px;
+    }
+
+    .sec-head {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .page {
+        padding-bottom:
+            calc(
+                var(--nav-h) +
+                var(--safe-bottom) +
+                30px
+            );
+    }
+
+    .bottom-nav {
+        height:calc(76px + var(--safe-bottom));
+    }
+
+    .nav-label {
+        font-size:.7rem;
+    }
+
+    .nav-icon {
+        font-size:1.5rem;
+    }
+
+    .cart-bar {
+        padding-left:32px;
+        padding-right:32px;
+    }
+
+    .pay-grid {
+        grid-template-columns:
+            repeat(4,minmax(0,1fr));
+    }
+
+}
+
+/* LARGE TABLET */
+
+@media (min-width:1000px) {
+
+    .menu-grid {
+        grid-template-columns:
+            repeat(4,minmax(0,1fr));
+    }
+
+    .page {
+        max-width:1200px;
+        margin:0 auto;
+        left:0;
+        right:0;
+    }
+
+    .bottom-nav {
+        max-width:700px;
+        left:50%;
+        right:auto;
+
+        width:700px;
+
+        transform:translateX(-50%);
+
+        border-radius:22px 22px 0 0;
+    }
+
+    .cart-bar {
+        max-width:700px;
+
+        left:50%;
+        right:auto;
+
+        width:700px;
+
+        transform:translateX(-50%);
+    }
+
+}
+
+</style>
 </head>
 
 <body>
 
-    <div class="container">
+<!-- ERROR SCREEN -->
+<div id="fatalErrorBox"></div>
 
-        <header>
-            <h1>Dashboard</h1>
-            <p>Selamat datang 👋</p>
-        </header>
+<div class="app">
 
-        <div class="cards">
+    <div class="pages">
 
-            <div class="card">
-                <h2>Penjualan</h2>
-                <div class="number">Rp 2.5jt</div>
+        <!-- ========================= -->
+        <!-- KASIR -->
+        <!-- ========================= -->
+
+        <div class="page active" id="page-kasir">
+
+            <div class="topbar">
+
+                <div class="logo">
+                    Kasir<span>POS</span>
+                </div>
+
+                <div class="topbar-sub" id="kasirDate">
+                    Memuat...
+                </div>
+
             </div>
 
-            <div class="card">
-                <h2>Pesanan</h2>
-                <div class="number">128</div>
+            <div class="search-bar">
+
+                <input
+                    type="search"
+                    id="menuSearch"
+                    placeholder="Cari menu..."
+                    autocomplete="off"
+                >
+
             </div>
 
-            <div class="card">
-                <h2>Stok</h2>
-                <div class="number">85%</div>
+            <div
+                class="chips"
+                id="menuChips">
+            </div>
+
+            <div
+                class="menu-grid"
+                id="menuGrid">
+            </div>
+
+            <div
+                id="menuEmpty"
+                class="empty"
+                style="display:none">
+                Belum ada menu.
+                <br>
+                Tambahkan menu melalui Back Office.
             </div>
 
         </div>
 
-        <div class="card" style="margin-top: 15px;">
-            <h2>Menu</h2>
 
-            <button onclick="alert('Tombol ditekan!')">
-                Buka Menu
-            </button>
+        <!-- ========================= -->
+        <!-- CART -->
+        <!-- ========================= -->
+
+        <div class="page" id="page-cart">
+
+            <div class="topbar">
+
+                <div class="logo">
+                    Kasir<span>POS</span>
+                </div>
+
+                <div class="topbar-sub">
+                    Keranjang
+                </div>
+
+            </div>
+
+            <div
+                class="cart-list"
+                id="cartList">
+            </div>
+
+            <div
+                id="cartEmptyMsg"
+                class="empty"
+                style="display:none">
+                Keranjang kosong.
+            </div>
+
+            <div
+                id="paySection"
+                style="padding:0 20px">
+
+                <div
+                    class="sec-head"
+                    style="padding-left:0;padding-right:0">
+
+                    <div class="sec-title">
+                        Total Belanja
+                    </div>
+
+                </div>
+
+                <div
+                    style="
+                    background:var(--surface2);
+                    border:1px solid var(--border);
+                    padding:18px;
+                    margin-bottom:20px;
+                    border-radius:14px;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    ">
+
+                    <div
+                        style="
+                        font-size:.7rem;
+                        font-weight:700;
+                        color:var(--muted);
+                        text-transform:uppercase;
+                        ">
+
+                        Total
+
+                    </div>
+
+                    <div
+                        id="cartTotalVal"
+                        style="
+                        font-family:'Fredoka',sans-serif;
+                        font-size:1.7rem;
+                        font-weight:600;
+                        color:var(--accent);
+                        ">
+
+                        Rp 0
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT METHOD -->
+
+                <div
+                    class="form-field"
+                    style="margin-bottom:18px">
+
+                    <div class="form-label">
+                        Metode Pembayaran
+                    </div>
+
+                    <div class="pay-grid">
+
+                        <button
+                            class="pay-btn active"
+                            data-m="tunai">
+                            💵 Tunai
+                        </button>
+
+                        <button
+                            class="pay-btn"
+                            data-m="qris">
+                            📱 QRIS
+                        </button>
+
+                        <button
+                            class="pay-btn"
+                            data-m="kartu">
+                            💳 Debit/Kredit
+                        </button>
+
+                        <button
+                            class="pay-btn"
+                            data-m="ewallet">
+                            👛 E-Wallet
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CASH -->
+
+                <div
+                    class="form-field"
+                    id="cashFields"
+                    style="margin-bottom:18px">
+
+                    <div class="form-label">
+                        Uang Diterima
+                    </div>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        id="uangBayar"
+                        placeholder="0"
+                        inputmode="numeric"
+                    >
+
+                    <div
+                        style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-top:8px;
+                        font-family:'JetBrains Mono',monospace;
+                        font-size:.85rem;
+                        ">
+
+                        <span style="color:var(--muted)">
+                            Kembalian
+                        </span>
+
+                        <span
+                            id="kembalianVal"
+                            style="
+                            color:var(--green);
+                            font-weight:600;
+                            ">
+                            Rp 0
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NON CASH -->
+
+                <div
+                    id="nontunaiNote"
+                    style="
+                    display:none;
+                    background:#eef8fb;
+                    border:1px solid #c6e6ef;
+                    padding:14px;
+                    margin-bottom:18px;
+                    border-radius:12px;
+                    font-size:.76rem;
+                    color:var(--muted);
+                    ">
+
+                    Konfirmasi pembayaran diterima
+                    secara manual, lalu tandai lunas
+                    di bawah.
+
+                </div>
+
+
+                <!-- PHONE -->
+
+                <div
+                    class="form-field"
+                    style="margin-bottom:18px">
+
+                    <div class="form-label">
+                        Nomor WA Pelanggan
+                        (opsional)
+                    </div>
+
+                    <input
+                        type="tel"
+                        class="form-input"
+                        id="custPhone"
+                        placeholder="0812xxxxxxx"
+                        inputmode="tel"
+                    >
+
+                </div>
+
+
+                <button
+                    class="big-btn"
+                    id="btnBayar">
+
+                    Bayar & Cetak Struk
+
+                </button>
+
+
+                <button
+                    class="ghost-btn"
+                    id="btnBackMenu"
+                    style="
+                    width:100%;
+                    margin-top:10px;
+                    padding:14px;
+                    text-align:center;
+                    ">
+
+                    ← Kembali pilih menu
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- RIWAYAT -->
+        <!-- ========================= -->
+
+        <div class="page" id="page-riwayat">
+
+            <div class="topbar">
+
+                <div class="logo">
+                    Kasir<span>POS</span>
+                </div>
+
+                <div class="topbar-sub">
+                    Transaksi Hari Ini
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card c-green">
+
+                    <div class="stat-label">
+                        Omzet Hari Ini
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stOmzetHariIni"
+                        style="font-size:1.35rem">
+
+                        Rp 0
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card c-blue">
+
+                    <div class="stat-label">
+                        Transaksi
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stTrxHariIni">
+
+                        0
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="sec-head">
+
+                <div class="sec-title">
+                    Rekap Item Terjual Hari Ini
+                </div>
+
+            </div>
+
+
+            <div id="recapItemList">
+                <div class="report-row">
+                    <div class="rr-label">
+                        Memuat...
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="sec-head">
+
+                <div class="sec-title">
+                    Tap untuk lihat / cetak ulang struk
+                </div>
+
+            </div>
+
+
+            <div
+                class="log-list"
+                id="riwayatList">
+            </div>
+
+
+            <div
+                id="riwayatEmpty"
+                class="empty"
+                style="display:none">
+
+                Belum ada transaksi hari ini.
+
+            </div>
+
         </div>
 
     </div>
+
+
+    <!-- CART BAR -->
+
+    <div
+        class="cart-bar"
+        id="cartBar">
+
+        <div
+            class="cb-left"
+            id="cartBarCount">
+            0 item
+        </div>
+
+        <div
+            class="cb-total"
+            id="cartBarTotal">
+            Rp 0
+        </div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-item active"
+            id="nav-kasir"
+            data-page="kasir">
+
+            <span class="nav-icon">
+                🛒
+            </span>
+
+            <span class="nav-label">
+                Kasir
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="nav-riwayat"
+            data-page="riwayat">
+
+            <span class="nav-icon">
+                🧾
+            </span>
+
+            <span class="nav-label">
+                Hari Ini
+            </span>
+
+        </button>
+
+    </nav>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- RECEIPT SHEET -->
+<!-- ========================= -->
+
+<div
+    class="sheet-overlay"
+    id="struckOverlay">
+
+    <div class="sheet">
+
+        <div class="sheet-handle"></div>
+
+        <div
+            class="receipt"
+            id="receiptContent">
+        </div>
+
+
+        <div
+            style="
+            display:flex;
+            gap:10px;
+            padding-top:15px;
+            ">
+
+            <button
+                class="ghost-btn"
+                id="btnPrint"
+                style="
+                flex:1;
+                padding:14px;
+                ">
+
+                🖨 Cetak
+
+            </button>
+
+
+            <button
+                class="big-btn"
+                id="btnWA"
+                style="flex:1">
+
+                📤 Kirim WA
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="voidBtnRow"
+            style="padding-top:12px">
+
+            <button
+                class="ghost-btn"
+                id="btnVoid"
+                style="
+                width:100%;
+                padding:14px;
+                color:var(--red);
+                border-color:#f2b6c5;
+                ">
+
+                🗑 Batalkan Transaksi Ini
+
+            </button>
+
+        </div>
+
+
+        <div style="padding-top:12px">
+
+            <button
+                class="ghost-btn"
+                id="btnCloseStruk"
+                style="
+                width:100%;
+                padding:14px;
+                text-align:center;
+                ">
+
+                Selesai, kembali ke Kasir
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="module">
+
+/* =========================================================
+   FIREBASE
+   ========================================================= */
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    onSnapshot,
+    doc,
+    setDoc,
+    addDoc,
+    getDoc,
+    query,
+    orderBy,
+    limit,
+    runTransaction
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyDmGGM7qE44OztmVZ8SSdBLJz6KXXrIicE",
+
+    authDomain:
+        "stokdapurku-b76cb.firebaseapp.com",
+
+    projectId:
+        "stokdapurku-b76cb",
+
+    storageBucket:
+        "stokdapurku-b76cb.firebasestorage.app",
+
+    messagingSenderId:
+        "619986157752",
+
+    appId:
+        "1:619986157752:web:eefc283533d81dacb5744d"
+
+};
+
+
+/* =========================================================
+   ERROR HANDLING
+   ========================================================= */
+
+function showError(title, detail) {
+
+    const box =
+        document.getElementById("fatalErrorBox");
+
+    box.style.display = "block";
+
+    box.textContent =
+        "⚠️ " + title +
+        "\n\n" +
+        detail +
+        "\n\n" +
+        "Silakan screenshot pesan ini.";
+
+}
+
+
+window.addEventListener("error", function(e) {
+
+    console.error(e);
+
+});
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(e) {
+
+        console.error(
+            "Promise error:",
+            e.reason
+        );
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE FIREBASE
+   ========================================================= */
+
+let app;
+let db;
+
+try {
+
+    app = initializeApp(firebaseConfig);
+
+    db = getFirestore(app);
+
+} catch(error) {
+
+    showError(
+        "Firebase gagal dimulai",
+        error.message
+    );
+
+    throw error;
+
+}
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+let menus = [];
+let trx = [];
+let cart = [];
+
+let activeMenuChip = "";
+let payMethod = "tunai";
+
+let currentStrukTrxId = null;
+let lastTrxForReceipt = null;
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function rupiah(value) {
+
+    const number =
+        Number(value) || 0;
+
+    return "Rp " +
+        Math.round(number)
+            .toLocaleString("id-ID");
+
+}
+
+
+function safeText(value) {
+
+    return String(
+        value ?? ""
+    );
+
+}
+
+
+function getMenuName(menu) {
+
+    return safeText(
+        menu.nama || "Menu"
+    );
+
+}
+
+
+function getMenuCategory(menu) {
+
+    return safeText(
+        menu.kategori || "Lainnya"
+    );
+
+}
+
+
+function getMenuPrice(menu) {
+
+    return Number(
+        menu.harga_jual || 0
+    );
+
+}
+
+
+function getMenuStock(menu) {
+
+    return Number(
+        menu.stok || 0
+    );
+
+}
+
+
+function getMenuMin(menu) {
+
+    return Number(
+        menu.min || 5
+    );
+
+}
+
+
+function getStatus(menu) {
+
+    const stock =
+        getMenuStock(menu);
+
+    const min =
+        getMenuMin(menu);
+
+    if (stock <= 0)
+        return "habis";
+
+    if (stock < min)
+        return "low";
+
+    return "ok";
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function gotoPage(name) {
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+
+            page.classList.remove("active");
+
+        });
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+        });
+
+
+    const page =
+        document.getElementById(
+            "page-" + name
+        );
+
+    if (!page) return;
+
+    page.classList.add("active");
+
+
+    const nav =
+        document.getElementById(
+            "nav-" + name
+        );
+
+    if (nav)
+        nav.classList.add("active");
+
+
+    page.scrollTop = 0;
+
+
+    const cartBar =
+        document.getElementById(
+            "cartBar"
+        );
+
+    cartBar.classList.toggle(
+        "show",
+        name === "kasir" &&
+        cart.length > 0
+    );
+
+
+    if (name === "cart") {
+
+        renderCartPage();
+
+    }
+
+}
+
+
+document
+    .querySelectorAll(".nav-item")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                gotoPage(
+                    this.dataset.page
+                );
+
+            }
+        );
+
+    });
+
+
+document
+    .getElementById("cartBar")
+    .addEventListener(
+        "click",
+        function() {
+
+            gotoPage("cart");
+
+        }
+    );
+
+
+document
+    .getElementById("btnBackMenu")
+    .addEventListener(
+        "click",
+        function() {
+
+            gotoPage("kasir");
+
+        }
+    );
+
+
+/* =========================================================
+   DATE
+   ========================================================= */
+
+document
+    .getElementById("kasirDate")
+    .textContent =
+        new Date().toLocaleDateString(
+            "id-ID",
+            {
+                weekday:"short",
+                day:"numeric",
+                month:"short",
+                year:"numeric"
+            }
+        );
+
+
+/* =========================================================
+   MENU CHIPS
+   ========================================================= */
+
+function renderMenuChips() {
+
+    const categories =
+        [
+            ...new Set(
+                menus.map(
+                    menu =>
+                        getMenuCategory(menu)
+                )
+            )
+        ];
+
+
+    const container =
+        document.getElementById(
+            "menuChips"
+        );
+
+
+    let html = "";
+
+    html += `
+        <button
+            class="chip ${activeMenuChip === "" ? "active" : ""}"
+            data-category="">
+            Semua
+        </button>
+    `;
+
+
+    categories.forEach(category => {
+
+        html += `
+            <button
+                class="chip ${
+                    activeMenuChip === category
+                        ? "active"
+                        : ""
+                }"
+                data-category="${safeText(category)}">
+
+                ${safeText(category)}
+
+            </button>
+        `;
+
+    });
+
+
+    container.innerHTML = html;
+
+
+    container
+        .querySelectorAll(".chip")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    activeMenuChip =
+                        this.dataset.category;
+
+                    renderMenuChips();
+
+                    renderMenuGrid();
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   MENU GRID
+   ========================================================= */
+
+function renderMenuGrid() {
+
+    const searchInput =
+        document.getElementById(
+            "menuSearch"
+        );
+
+
+    const queryText =
+        safeText(
+            searchInput.value
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filtered =
+        menus.filter(menu => {
+
+            const name =
+                getMenuName(menu)
+                    .toLowerCase();
+
+            const category =
+                getMenuCategory(menu)
+                    .toLowerCase();
+
+
+            const matchSearch =
+                !queryText ||
+                name.includes(queryText) ||
+                category.includes(queryText);
+
+
+            const matchCategory =
+                !activeMenuChip ||
+                getMenuCategory(menu) ===
+                    activeMenuChip;
+
+
+            return (
+                matchSearch &&
+                matchCategory
+            );
+
+        });
+
+
+    const grid =
+        document.getElementById(
+            "menuGrid"
+        );
+
+
+    const empty =
+        document.getElementById(
+            "menuEmpty"
+        );
+
+
+    if (!filtered.length) {
+
+        grid.innerHTML = "";
+
+        empty.style.display = "block";
+
+        return;
+
+    }
+
+
+    empty.style.display = "none";
+
+
+    grid.innerHTML =
+        filtered.map(menu => {
+
+            const status =
+                getStatus(menu);
+
+            const stock =
+                getMenuStock(menu);
+
+            const statusText =
+                status === "habis"
+                    ? "HABIS"
+                    : status === "low"
+                        ? "Sisa " + stock
+                        : stock + " porsi";
+
+
+            return `
+                <div
+                    class="menu-card ${
+                        status === "habis"
+                            ? "habis"
+                            : ""
+                    }"
+                    data-id="${menu.id}">
+
+                    <div
+                        class="mstok ${status}">
+
+                        ${statusText}
+
+                    </div>
+
+
+                    <div class="mname">
+
+                        ${getMenuName(menu)}
+
+                    </div>
+
+
+                    <div class="mkat">
+
+                        ${getMenuCategory(menu)}
+
+                    </div>
+
+
+                    <div class="mprice">
+
+                        ${rupiah(
+                            getMenuPrice(menu)
+                        )}
+
+                    </div>
+
+                </div>
+            `;
+
+        })
+        .join("");
+
+
+    grid
+        .querySelectorAll(".menu-card")
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                function() {
+
+                    addToCart(
+                        this.dataset.id
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   ADD TO CART
+   ========================================================= */
+
+function addToCart(menuId) {
+
+    const menu =
+        menus.find(
+            item =>
+                item.id === menuId
+        );
+
+
+    if (!menu) return;
+
+
+    if (
+        getStatus(menu) ===
+        "habis"
+    ) {
+
+        alert("Menu sedang habis.");
+
+        return;
+
+    }
+
+
+    const stock =
+        getMenuStock(menu);
+
+
+    const existing =
+        cart.find(
+            item =>
+                item.id === menuId
+        );
+
+
+    const currentQty =
+        existing
+            ? existing.qty
+            : 0;
+
+
+    if (
+        currentQty + 1 >
+        stock
+    ) {
+
+        alert(
+            "Stok tidak cukup.\nSisa: " +
+            stock
+        );
+
+        return;
+
+    }
+
+
+    if (existing) {
+
+        existing.qty++;
+
+    } else {
+
+        cart.push({
+
+            id:menu.id,
+
+            nama:getMenuName(menu),
+
+            harga:getMenuPrice(menu),
+
+            modal:
+                Number(
+                    menu.harga_modal || 0
+                ),
+
+            qty:1
+
+        });
+
+    }
+
+
+    updateCartBar();
+
+}
+
+
+/* =========================================================
+   CART BAR
+   ========================================================= */
+
+function updateCartBar() {
+
+    const count =
+        cart.reduce(
+            (sum,item) =>
+                sum + item.qty,
+            0
+        );
+
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.qty *
+                item.harga,
+            0
+        );
+
+
+    document
+        .getElementById(
+            "cartBarCount"
+        )
+        .textContent =
+            count + " item";
+
+
+    document
+        .getElementById(
+            "cartBarTotal"
+        )
+        .textContent =
+            rupiah(total);
+
+
+    document
+        .getElementById(
+            "cartBar"
+        )
+        .classList.toggle(
+            "show",
+            count > 0 &&
+            document
+                .getElementById(
+                    "page-kasir"
+                )
+                .classList.contains(
+                    "active"
+                )
+        );
+
+}
+
+
+/* =========================================================
+   RENDER CART
+   ========================================================= */
+
+function renderCartPage() {
+
+    const list =
+        document.getElementById(
+            "cartList"
+        );
+
+    const empty =
+        document.getElementById(
+            "cartEmptyMsg"
+        );
+
+    const paySection =
+        document.getElementById(
+            "paySection"
+        );
+
+
+    if (!cart.length) {
+
+        list.innerHTML = "";
+
+        empty.style.display =
+            "block";
+
+        paySection.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    empty.style.display =
+        "none";
+
+    paySection.style.display =
+        "block";
+
+
+    list.innerHTML =
+        cart.map(
+            (item,index) => `
+
+                <div class="cart-item">
+
+                    <div class="ci-info">
+
+                        <div class="ci-name">
+                            ${safeText(item.nama)}
+                        </div>
+
+                        <div class="ci-price">
+
+                            ${rupiah(item.harga)}
+                            × ${item.qty}
+                            =
+                            ${rupiah(
+                                item.harga *
+                                item.qty
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="qty-ctrl">
+
+                        <button
+                            class="qty-btn"
+                            data-index="${index}"
+                            data-delta="-1">
+
+                            −
+
+                        </button>
+
+
+                        <span class="qty-val">
+
+                            ${item.qty}
+
+                        </span>
+
+
+                        <button
+                            class="qty-btn"
+                            data-index="${index}"
+                            data-delta="1">
+
+                            +
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `
+        )
+        .join("");
+
+
+    list
+        .querySelectorAll(".qty-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    changeQty(
+                        Number(
+                            this.dataset.index
+                        ),
+
+                        Number(
+                            this.dataset.delta
+                        )
+                    );
+
+                }
+            );
+
+        });
+
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.qty *
+                item.harga,
+            0
+        );
+
+
+    document
+        .getElementById(
+            "cartTotalVal"
+        )
+        .textContent =
+            rupiah(total);
+
+
+    updateKembalian();
+
+}
+
+
+/* =========================================================
+   CHANGE QTY
+   ========================================================= */
+
+function changeQty(index,delta) {
+
+    const item =
+        cart[index];
+
+    if (!item) return;
+
+
+    const menu =
+        menus.find(
+            m =>
+                m.id === item.id
+        );
+
+
+    const newQty =
+        item.qty + delta;
+
+
+    if (newQty <= 0) {
+
+        cart.splice(index,1);
+
+    }
+
+    else if (
+        menu &&
+        newQty >
+        getMenuStock(menu)
+    ) {
+
+        alert(
+            "Stok tidak cukup.\nSisa: " +
+            getMenuStock(menu)
+        );
+
+        return;
+
+    }
+
+    else {
+
+        item.qty =
+            newQty;
+
+    }
+
+
+    renderCartPage();
+
+    updateCartBar();
+
+}
+
+
+/* =========================================================
+   PAYMENT METHOD
+   ========================================================= */
+
+function setPayMethod(method) {
+
+    payMethod =
+        method;
+
+
+    document
+        .querySelectorAll(".pay-btn")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.m ===
+                    method
+            );
+
+        });
+
+
+    const isCash =
+        method === "tunai";
+
+
+    document
+        .getElementById(
+            "cashFields"
+        )
+        .style.display =
+            isCash
+                ? "flex"
+                : "none";
+
+
+    document
+        .getElementById(
+            "nontunaiNote"
+        )
+        .style.display =
+            isCash
+                ? "none"
+                : "block";
+
+
+    document
+        .getElementById(
+            "btnBayar"
+        )
+        .textContent =
+            isCash
+                ? "Bayar & Cetak Struk"
+                : "Tandai Lunas & Simpan";
+
+
+    updateKembalian();
+
+}
+
+
+document
+    .querySelectorAll(".pay-btn")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                setPayMethod(
+                    this.dataset.m
+                );
+
+            }
+        );
+
+    });
+
+
+/* =========================================================
+   KEMBALIAN
+   ========================================================= */
+
+function updateKembalian() {
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.qty *
+                item.harga,
+            0
+        );
+
+
+    const bayar =
+        Number(
+            document
+                .getElementById(
+                    "uangBayar"
+                )
+                .value
+        ) || 0;
+
+
+    const kembali =
+        bayar - total;
+
+
+    const element =
+        document.getElementById(
+            "kembalianVal"
+        );
+
+
+    element.textContent =
+        rupiah(
+            Math.max(
+                0,
+                kembali
+            )
+        );
+
+
+    element.style.color =
+        kembali < 0
+            ? "var(--red)"
+            : "var(--green)";
+
+}
+
+
+document
+    .getElementById(
+        "uangBayar"
+    )
+    .addEventListener(
+        "input",
+        updateKembalian
+    );
+
+
+/* =========================================================
+   PROCESS PAYMENT
+   ========================================================= */
+
+async function processPayment() {
+
+    if (!cart.length) {
+
+        alert(
+            "Keranjang masih kosong."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "btnBayar"
+        );
+
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.qty *
+                item.harga,
+            0
+        );
+
+
+    const modalTotal =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.qty *
+                item.modal,
+            0
+        );
+
+
+    let uangBayar =
+        total;
+
+    let kembalian =
+        0;
+
+
+    if (
+        payMethod ===
+        "tunai"
+    ) {
+
+        uangBayar =
+            Number(
+                document
+                    .getElementById(
+                        "uangBayar"
+                    )
+                    .value
+            ) || 0;
+
+
+        if (
+            uangBayar <
+            total
+        ) {
+
+            alert(
+                "Uang diterima kurang dari total belanja."
+            );
+
+            return;
+
+        }
+
+
+        kembalian =
+            uangBayar -
+            total;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Menyimpan...";
+
+
+    try {
+
+        /*
+         * KURANGI STOK SECARA TRANSAKSIONAL
+         */
+
+        await runTransaction(
+            db,
+            async transaction => {
+
+                for (
+                    const item
+                    of cart
+                ) {
+
+                    const reference =
+                        doc(
+                            db,
+                            "menu_stock",
+                            item.id
+                        );
+
+
+                    const snapshot =
+                        await transaction.get(
+                            reference
+                        );
+
+
+                    if (
+                        !snapshot.exists()
+                    ) {
+
+                        throw new Error(
+                            "Menu " +
+                            item.nama +
+                            " tidak ditemukan."
+                        );
+
+                    }
+
+
+                    const currentStock =
+                        Number(
+                            snapshot.data().stok
+                        ) || 0;
+
+
+                    if (
+                        currentStock <
+                        item.qty
+                    ) {
+
+                        throw new Error(
+                            "Stok " +
+                            item.nama +
+                            " tidak cukup. Sisa: " +
+                            currentStock
+                        );
+
+                    }
+
+
+                    transaction.update(
+                        reference,
+                        {
+                            stok:
+                                currentStock -
+                                item.qty
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+         * SIMPAN TRANSAKSI
+         */
+
+        const trxData = {
+
+            items:
+                cart.map(
+                    item => ({
+
+                        id:item.id,
+
+                        nama:item.nama,
+
+                        qty:item.qty,
+
+                        harga:item.harga,
+
+                        modal:item.modal
+
+                    })
+                ),
+
+            total:total,
+
+            modal:modalTotal,
+
+            laba:
+                total -
+                modalTotal,
+
+            metode:payMethod,
+
+            uangBayar:uangBayar,
+
+            kembalian:kembalian,
+
+            custPhone:
+                document
+                    .getElementById(
+                        "custPhone"
+                    )
+                    .value
+                    .trim(),
+
+            timestamp:
+                Date.now(),
+
+            time:
+                new Date()
+                    .toLocaleString(
+                        "id-ID"
+                    )
+
+        };
+
+
+        const reference =
+            await addDoc(
+                collection(
+                    db,
+                    "pos_transactions"
+                ),
+                trxData
+            );
+
+
+        lastTrxForReceipt = {
+
+            id:reference.id,
+
+            ...trxData
+
+        };
+
+
+        cart = [];
+
+
+        document
+            .getElementById(
+                "uangBayar"
+            )
+            .value = "";
+
+
+        document
+            .getElementById(
+                "custPhone"
+            )
+            .value = "";
+
+
+        setPayMethod(
+            "tunai"
+        );
+
+
+        updateCartBar();
+
+
+        renderCartPage();
+
+
+        showStruk(
+            lastTrxForReceipt
+        );
+
+
+    } catch(error) {
+
+        console.error(
+            "Payment error:",
+            error
+        );
+
+
+        alert(
+            "Gagal menyimpan transaksi:\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            payMethod === "tunai"
+                ? "Bayar & Cetak Struk"
+                : "Tandai Lunas & Simpan";
+
+    }
+
+}
+
+
+/* =========================================================
+   BUTTON PAYMENT
+   ========================================================= */
+
+document
+    .getElementById(
+        "btnBayar"
+    )
+    .addEventListener(
+        "click",
+        processPayment
+    );
+
+
+/* =========================================================
+   RECEIPT
+   ========================================================= */
+
+function showStruk(transactionData) {
+
+    currentStrukTrxId =
+        transactionData.id;
+
+
+    const items =
+        Array.isArray(
+            transactionData.items
+        )
+            ? transactionData.items
+            : [];
+
+
+    let itemsHTML = "";
+
+
+    items.forEach(item => {
+
+        itemsHTML += `
+
+            <div class="rline">
+
+                <span>
+                    ${safeText(item.nama)}
+                    ×${item.qty}
+                </span>
+
+                <span>
+                    ${rupiah(
+                        Number(item.harga) *
+                        Number(item.qty)
+                    )}
+                </span>
+
+            </div>
+
+        `;
+
+    });
+
+
+    const cancelled =
+        transactionData.voided
+            ? `
+                <div
+                    style="
+                    text-align:center;
+                    color:var(--red);
+                    font-weight:700;
+                    margin-bottom:10px;
+                    ">
+
+                    ✗ TRANSAKSI DIBATALKAN
+
+                </div>
+              `
+            : "";
+
+
+    const cashInfo =
+        transactionData.metode ===
+        "tunai"
+
+            ? `
+
+                <div class="rline">
+
+                    <span>Bayar</span>
+
+                    <span>
+                        ${rupiah(
+                            transactionData.uangBayar
+                        )}
+                    </span>
+
+                </div>
+
+
+                <div class="rline">
+
+                    <span>Kembali</span>
+
+                    <span>
+                        ${rupiah(
+                            transactionData.kembalian
+                        )}
+                    </span>
+
+                </div>
+
+              `
+
+            : "";
+
+
+    document
+        .getElementById(
+            "receiptContent"
+        )
+        .innerHTML = `
+
+            <h3>
+                The Kitchen Bamboo Dimsum
+            </h3>
+
+            <div
+                style="
+                text-align:center;
+                color:#666;
+                margin-bottom:10px;
+                ">
+
+                ${safeText(
+                    transactionData.time
+                )}
+
+            </div>
+
+
+            ${cancelled}
+
+
+            <hr>
+
+
+            ${itemsHTML}
+
+
+            <hr>
+
+
+            <div class="rline">
+
+                <strong>TOTAL</strong>
+
+                <strong>
+                    ${rupiah(
+                        transactionData.total
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="rline">
+
+                <span>Metode</span>
+
+                <span>
+                    ${safeText(
+                        transactionData.metode
+                    ).toUpperCase()}
+                </span>
+
+            </div>
+
+
+            ${cashInfo}
+
+
+            <hr>
+
+
+            <div
+                style="
+                text-align:center;
+                color:#666;
+                ">
+
+                Terima kasih atas kunjungan Anda!
+
+            </div>
+
+        `;
+
+
+    document
+        .getElementById(
+            "voidBtnRow"
+        )
+        .style.display =
+            transactionData.voided
+                ? "none"
+                : "block";
+
+
+    document
+        .getElementById(
+            "struckOverlay"
+        )
+        .classList.add(
+            "open"
+        );
+
+}
+
+
+/* =========================================================
+   CLOSE RECEIPT
+   ========================================================= */
+
+function closeStruk() {
+
+    document
+        .getElementById(
+            "struckOverlay"
+        )
+        .classList.remove(
+            "open"
+        );
+
+
+    gotoPage(
+        "kasir"
+    );
+
+}
+
+
+document
+    .getElementById(
+        "btnCloseStruk"
+    )
+    .addEventListener(
+        "click",
+        closeStruk
+    );
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+function printReceipt() {
+
+    window.print();
+
+}
+
+
+document
+    .getElementById(
+        "btnPrint"
+    )
+    .addEventListener(
+        "click",
+        printReceipt
+    );
+
+
+/* =========================================================
+   WHATSAPP
+   ========================================================= */
+
+function shareReceiptWA() {
+
+    if (!lastTrxForReceipt) {
+
+        alert(
+            "Struk tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    const transaction =
+        lastTrxForReceipt;
+
+
+    let text =
+        "*The Kitchen Bamboo Dimsum*\n";
+
+
+    text +=
+        safeText(
+            transaction.time
+        ) +
+        "\n\n";
+
+
+    transaction.items.forEach(
+        item => {
+
+            text +=
+                safeText(item.nama) +
+                " x" +
+                item.qty +
+                " - " +
+                rupiah(
+                    item.harga *
+                    item.qty
+                ) +
+                "\n";
+
+        }
+    );
+
+
+    text +=
+        "\n*TOTAL: " +
+        rupiah(
+            transaction.total
+        ) +
+        "*\n";
+
+
+    text +=
+        "Metode: " +
+        safeText(
+            transaction.metode
+        ).toUpperCase() +
+        "\n";
+
+
+    if (
+        transaction.metode ===
+        "tunai"
+    ) {
+
+        text +=
+            "Bayar: " +
+            rupiah(
+                transaction.uangBayar
+            ) +
+            "\n";
+
+
+        text +=
+            "Kembali: " +
+            rupiah(
+                transaction.kembalian
+            ) +
+            "\n";
+
+    }
+
+
+    text +=
+        "\nTerima kasih! 🙏";
+
+
+    const phone =
+        safeText(
+            transaction.custPhone
+        )
+        .replace(
+            /\D/g,
+            ""
+        );
+
+
+    let url;
+
+
+    if (phone) {
+
+        const waPhone =
+            phone.startsWith("0")
+                ? "62" +
+                    phone.slice(1)
+                : phone;
+
+
+        url =
+            "https://wa.me/" +
+            waPhone +
+            "?text=" +
+            encodeURIComponent(
+                text
+            );
+
+    } else {
+
+        url =
+            "https://wa.me/?text=" +
+            encodeURIComponent(
+                text
+            );
+
+    }
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+
+document
+    .getElementById(
+        "btnWA"
+    )
+    .addEventListener(
+        "click",
+        shareReceiptWA
+    );
+
+
+/* =========================================================
+   VOID PIN
+   ========================================================= */
+
+async function getVoidPin() {
+
+    const reference =
+        doc(
+            db,
+            "settings",
+            "app"
+        );
+
+
+    const snapshot =
+        await getDoc(
+            reference
+        );
+
+
+    if (
+        snapshot.exists() &&
+        snapshot.data().voidPin
+    ) {
+
+        return snapshot.data().voidPin;
+
+    }
+
+
+    await setDoc(
+        reference,
+        {
+            voidPin:"1234"
+        },
+        {
+            merge:true
+        }
+    );
+
+
+    return "1234";
+
+}
+
+
+/* =========================================================
+   VOID TRANSACTION
+   ========================================================= */
+
+async function voidTransaction(
+    transactionId
+) {
+
+    const transaction =
+        trx.find(
+            item =>
+                item.id ===
+                transactionId
+        );
+
+
+    if (!transaction) {
+
+        alert(
+            "Transaksi tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    if (transaction.voided) {
+
+        alert(
+            "Transaksi ini sudah dibatalkan."
+        );
+
+        return;
+
+    }
+
+
+    const pin =
+        prompt(
+            "Masukkan PIN pemilik/manajer:"
+        );
+
+
+    if (pin === null)
+        return;
+
+
+    try {
+
+        const correctPin =
+            await getVoidPin();
+
+
+        if (
+            pin !==
+            correctPin
+        ) {
+
+            alert(
+                "PIN salah."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                "Yakin ingin membatalkan transaksi ini?\n\nStok akan dikembalikan."
+            );
+
+
+        if (!confirmed)
+            return;
+
+
+        const reason =
+            prompt(
+                "Alasan pembatalan:"
+            ) || "";
+
+
+        await runTransaction(
+            db,
+            async transaction => {
+
+                for (
+                    const item
+                    of transaction.items
+                ) {
+
+                    let menuId =
+                        item.id;
+
+
+                    if (!menuId) {
+
+                        const menu =
+                            menus.find(
+                                m =>
+                                    getMenuName(m) ===
+                                    item.nama
+                            );
+
+
+                        if (menu)
+                            menuId =
+                                menu.id;
+
+                    }
+
+
+                    if (!menuId)
+                        continue;
+
+
+                    const reference =
+                        doc(
+                            db,
+                            "menu_stock",
+                            menuId
+                        );
+
+
+                    const snapshot =
+                        await transaction.get(
+                            reference
+                        );
+
+
+                    if (
+                        snapshot.exists()
+                    ) {
+
+                        const stock =
+                            Number(
+                                snapshot
+                                    .data()
+                                    .stok
+                            ) || 0;
+
+
+                        transaction.update(
+                            reference,
+                            {
+                                stok:
+                                    stock +
+                                    Number(
+                                        item.qty
+                                    )
+                            }
+                        );
+
+                    }
+
+                }
+
+
+                transaction.update(
+                    doc(
+                        db,
+                        "pos_transactions",
+                        transactionId
+                    ),
+                    {
+                        voided:true,
+
+                        voidedAt:
+                            Date.now(),
+
+                        voidReason:
+                            reason
+                    }
+                );
+
+            }
+        );
+
+
+        alert(
+            "Transaksi berhasil dibatalkan.\nStok sudah dikembalikan."
+        );
+
+
+        closeStruk();
+
+
+    } catch(error) {
+
+        console.error(
+            "Void error:",
+            error
+        );
+
+
+        alert(
+            "Gagal membatalkan transaksi:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+document
+    .getElementById(
+        "btnVoid"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            if (
+                currentStrukTrxId
+            ) {
+
+                voidTransaction(
+                    currentStrukTrxId
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+
+function renderRiwayat() {
+
+    const today =
+        new Date();
+
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    const todayStart =
+        today.getTime();
+
+
+    const todayTransactions =
+        trx.filter(
+            transaction =>
+                Number(
+                    transaction.timestamp
+                ) >= todayStart
+        );
+
+
+    const validTransactions =
+        todayTransactions.filter(
+            transaction =>
+                !transaction.voided
+        );
+
+
+    const omzet =
+        validTransactions.reduce(
+            (sum,transaction) =>
+                sum +
+                Number(
+                    transaction.total
+                ),
+            0
+        );
+
+
+    document
+        .getElementById(
+            "stOmzetHariIni"
+        )
+        .textContent =
+            rupiah(omzet);
+
+
+    document
+        .getElementById(
+            "stTrxHariIni"
+        )
+        .textContent =
+            validTransactions.length;
+
+
+    /*
+     * REKAP ITEM
+     */
+
+    const itemMap = {};
+
+
+    validTransactions.forEach(
+        transaction => {
+
+            const items =
+                Array.isArray(
+                    transaction.items
+                )
+                    ? transaction.items
+                    : [];
+
+
+            items.forEach(item => {
+
+                const name =
+                    safeText(
+                        item.nama
+                    );
+
+
+                if (!itemMap[name]) {
+
+                    itemMap[name] = {
+
+                        qty:0,
+
+                        omzet:0
+
+                    };
+
+                }
+
+
+                itemMap[name].qty +=
+                    Number(
+                        item.qty
+                    ) || 0;
+
+
+                itemMap[name].omzet +=
+                    (
+                        Number(
+                            item.qty
+                        ) || 0
+                    ) *
+                    (
+                        Number(
+                            item.harga
+                        ) || 0
+                    );
+
+            });
+
+        }
+    );
+
+
+    const itemEntries =
+        Object.entries(
+            itemMap
+        ).sort(
+            (a,b) =>
+                b[1].qty -
+                a[1].qty
+        );
+
+
+    const recap =
+        document.getElementById(
+            "recapItemList"
+        );
+
+
+    if (!itemEntries.length) {
+
+        recap.innerHTML = `
+
+            <div class="report-row">
+
+                <div class="rr-label">
+
+                    Belum ada penjualan hari ini.
+
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        recap.innerHTML =
+            itemEntries.map(
+                ([name,data]) => `
+
+                    <div class="report-row">
+
+                        <div class="rr-label">
+
+                            ${safeText(name)}
+
+                            <span
+                                style="
+                                color:var(--muted)
+                                ">
+
+                                (${data.qty}x)
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="rr-val">
+
+                            ${rupiah(
+                                data.omzet
+                            )}
+
+                        </div>
+
+                    </div>
+
+                `
+            ).join("");
+
+    }
+
+
+    /*
+     * HISTORY LIST
+     */
+
+    const list =
+        document.getElementById(
+            "riwayatList"
+        );
+
+
+    const empty =
+        document.getElementById(
+            "riwayatEmpty"
+        );
+
+
+    if (!todayTransactions.length) {
+
+        list.innerHTML = "";
+
+        empty.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    empty.style.display =
+        "none";
+
+
+    list.innerHTML =
+        todayTransactions.map(
+            transaction => {
+
+                const itemCount =
+                    Array.isArray(
+                        transaction.items
+                    )
+                        ? transaction.items
+                            .reduce(
+                                (
+                                    sum,
+                                    item
+                                ) =>
+                                    sum +
+                                    Number(
+                                        item.qty
+                                    ),
+                                0
+                            )
+                        : 0;
+
+
+                return `
+
+                    <div
+                        class="log-item ${
+                            transaction.voided
+                                ? "is-voided"
+                                : ""
+                        }"
+                        data-id="${
+                            transaction.id
+                        }">
+
+                        <div
+                            class="log-dot ${
+                                transaction.metode ===
+                                "tunai"
+                                    ? "cash"
+                                    : "nontunai"
+                            }">
+                        </div>
+
+
+                        <div class="log-body">
+
+                            <div class="log-text">
+
+                                <strong>
+                                    ${rupiah(
+                                        transaction.total
+                                    )}
+                                </strong>
+
+                                · ${itemCount} item
+
+                                · ${safeText(
+                                    transaction.metode
+                                ).toUpperCase()}
+
+
+                                ${
+                                    transaction.voided
+                                        ? `
+                                            <span class="void-badge">
+                                                Dibatalkan
+                                            </span>
+                                          `
+                                        : ""
+                                }
+
+                            </div>
+
+
+                            <div class="log-time">
+
+                                ${safeText(
+                                    transaction.time
+                                )}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    list
+        .querySelectorAll(".log-item")
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                function() {
+
+                    const id =
+                        this.dataset.id;
+
+
+                    const transaction =
+                        trx.find(
+                            t =>
+                                t.id === id
+                        );
+
+
+                    if (transaction) {
+
+                        lastTrxForReceipt =
+                            transaction;
+
+                        showStruk(
+                            transaction
+                        );
+
+                    }
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   FIRESTORE MENU LISTENER
+   ========================================================= */
+
+onSnapshot(
+    collection(
+        db,
+        "menu_stock"
+    ),
+
+    snapshot => {
+
+        menus = [];
+
+
+        snapshot.forEach(
+            documentSnapshot => {
+
+                menus.push({
+
+                    id:
+                        documentSnapshot.id,
+
+                    ...documentSnapshot.data()
+
+                });
+
+            }
+        );
+
+
+        renderMenuChips();
+
+        renderMenuGrid();
+
+    },
+
+    error => {
+
+        console.error(
+            "Menu listener error:",
+            error
+        );
+
+
+        showError(
+            "Gagal membaca menu Firebase",
+            error.message
+        );
+
+    }
+);
+
+
+/* =========================================================
+   FIRESTORE TRANSACTION LISTENER
+   ========================================================= */
+
+const transactionsQuery =
+    query(
+        collection(
+            db,
+            "pos_transactions"
+        ),
+
+        orderBy(
+            "timestamp",
+            "desc"
+        ),
+
+        limit(200)
+    );
+
+
+onSnapshot(
+    transactionsQuery,
+
+    snapshot => {
+
+        trx = [];
+
+
+        snapshot.forEach(
+            documentSnapshot => {
+
+                trx.push({
+
+                    id:
+                        documentSnapshot.id,
+
+                    ...documentSnapshot.data()
+
+                });
+
+            }
+        );
+
+
+        renderRiwayat();
+
+    },
+
+    error => {
+
+        console.error(
+            "Transaction listener error:",
+            error
+        );
+
+
+        /*
+         * Jangan bikin seluruh halaman blank
+         * kalau collection transaksi bermasalah.
+         */
+
+        document
+            .getElementById(
+                "riwayatList"
+            )
+            .innerHTML = `
+
+                <div
+                    class="empty">
+
+                    Tidak dapat memuat riwayat transaksi.
+
+                    <br><br>
+
+                    ${safeText(
+                        error.message
+                    )}
+
+                </div>
+
+            `;
+
+    }
+);
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+document
+    .getElementById(
+        "menuSearch"
+    )
+    .addEventListener(
+        "input",
+        renderMenuGrid
+    );
+
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+renderMenuChips();
+
+renderMenuGrid();
+
+renderRiwayat();
+
+updateCartBar();
+
+gotoPage("kasir");
+
+
+console.log(
+    "Kasir POS berhasil dimuat."
+);
+
+</script>
+
+
+<!-- PRINT CSS -->
+
+<style>
+
+@media print {
+
+    body * {
+        visibility:hidden !important;
+    }
+
+    #struckOverlay,
+    #struckOverlay *,
+    #receiptContent,
+    #receiptContent * {
+        visibility:visible !important;
+    }
+
+    #struckOverlay {
+        position:static !important;
+
+        background:#fff !important;
+
+        opacity:1 !important;
+
+        visibility:visible !important;
+    }
+
+    .sheet {
+        position:static !important;
+
+        transform:none !important;
+
+        max-height:none !important;
+
+        overflow:visible !important;
+
+        box-shadow:none !important;
+    }
+
+    .sheet-handle,
+    .sheet > div:not(#receiptContent) {
+        display:none !important;
+    }
+
+    #receiptContent {
+        width:100%;
+
+        border:none !important;
+
+        padding:10px !important;
+    }
+
+}
+
+</style>
 
 </body>
 </html>
